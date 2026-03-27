@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="loginpage.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <title>Da1Help. - Entrar</title>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help.</a>
+            <nav class="user-menu">
+                <a href="sobrepage.html" class="nav-link">Sobre</a>
+                <a href="contatopage.html" class="nav-link">Contato</a>
+                <a href="registerpage.html" class="btn-primary">Criar conta</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="auth-wrapper">
+        <div class="glass-form">
+            <h2>Bem-vindo de volta</h2>
+            <p>Faça login para acessar seus projetos.</p>
+            
+            <form>
+                <div class="input-group">
+                    <label for="email">Seu E-mail</label>
+                    <input type="email" id="email" placeholder="nome@exemplo.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Sua Senha</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                
+                <a href="esquecipassword.html" class="forgot-link">Esqueceu a senha?</a>
+                
+                <button type="submit" class="btn-submit">Entrar na Plataforma</button>
+                <p class="switch-auth">Novo por aqui? <a href="registerpage.html">Crie sua conta</a></p>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
