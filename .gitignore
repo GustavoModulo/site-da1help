@@ -1,0 +1,16 @@
+# SEGURANÇA
+backend/.env
+.env
+
+# DEPENDÊNCIAS
+node_modules/
+backend/node_modules/
+
+# SISTEMA
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# LOGS
+*.log
+npm-debug.log*
