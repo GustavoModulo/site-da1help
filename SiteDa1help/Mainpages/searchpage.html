@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="searchpage.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <title>Da1Help. - Buscar Profissionais</title>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help.</a>
+            <nav class="user-menu">
+                <a href="sobrepage.html" class="nav-link">Sobre</a>
+                <a href="contatopage.html" class="nav-link">Contato</a>
+                <a href="loginpage.html" class="btn-ghost">Entrar</a>
+                <a href="registerpage.html" class="btn-primary">Criar conta</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="search-header"> 
+            <h1 class="text-gradient">Profissionais Disponíveis</h1>
+            <p>Encontre o talento certo para o que você precisa.</p>
+            
+            <div style="margin: 40px auto; max-width: 600px;">
+                <input type="text" id="campo-busca" placeholder="Busque por Elétrica, Limpeza, etc..." style="width: 100%; padding: 15px 25px; border-radius: 999px; border: 1px solid #e5e7eb; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); outline: none;">
+            </div>
+        </div>
+                
+        <div class="search-results">
+            <ul class="results-grid" style="list-style: none; padding: 0;">
+                
+                <li class="result-item glass-card">
+                    <div class="card-top">
+                        <img src="/SiteDa1help/Mainpages/images/Default_FotoPerfil.png" class="avatar" alt="Foto Profissional">
+                        <div class="info">
+                            <h3>Elétrica</h3>
+                            <div class="rating">★ 4.9</div>
+                        </div>
+                    </div>
+                    <p class="desc">Especialista em instalações e reparos elétricos.</p>
+                    <a href="#" class="btn-secondary">Ver Perfil</a>
+                </li>
+
+                <li class="result-item glass-card">
+                    <div class="card-top">
+                        <img src="/SiteDa1help/Mainpages/images/Default_FotoPerfil.png" class="avatar" alt="Foto Profissional">
+                        <div class="info">
+                            <h3>Hidráulica</h3>
+                            <div class="rating">★ 4.8</div>
+                        </div>
+                    </div>
+                    <p class="desc">Soluções para vazamentos e encanamentos.</p>
+                    <a href="#" class="btn-secondary">Ver Perfil</a>
+                </li>
+
+                <li class="result-item glass-card">
+                    <div class="card-top">
+                        <img src="/SiteDa1help/Mainpages/images/Default_FotoPerfil.png" class="avatar" alt="Foto Profissional">
+                        <div class="info">
+                            <h3>Pintura</h3>
+                            <div class="rating">★ 4.7</div>
+                        </div>
+                    </div>
+                    <p class="desc">Pintura residencial e comercial.</p>
+                    <a href="#" class="btn-secondary">Ver Perfil</a>
+                </li>
+
+                </ul>
+        </div>
+    </main>
+    
+    <script src="searchpage.js"></script>
+</body>
+</html>
