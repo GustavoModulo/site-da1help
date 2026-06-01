@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Encontrar Profissionais</title>
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { display: flex; flex-direction: column; }
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 60px 24px 80px; width: 100%; }
+
+        /* Search header */
+        .search-header { text-align: center; margin-bottom: 50px; }
+        .search-header h1 { font-size: 3rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 12px; }
+        .search-header p { color: var(--gray-500); font-size: 1.1rem; }
+
+        .search-bar-wrap {
+            display: flex; max-width: 640px; width: 100%;
+            margin: 30px auto 0; background: #fff;
+            border-radius: 999px; border: 1.5px solid var(--gray-200);
+            padding: 6px 6px 6px 24px;
+            box-shadow: var(--shadow-md);
+        }
+        .search-bar-wrap input {
+            flex: 1; border: none; background: transparent;
+            font-size: 1rem; outline: none; color: var(--gray-900);
+            font-family: inherit;
+        }
+        .search-bar-wrap button {
+            background: var(--brand-blue); color: #fff; border: none;
+            padding: 12px 28px; border-radius: 999px; font-weight: 700;
+            cursor: pointer; transition: var(--transition); font-family: inherit;
+        }
+        .search-bar-wrap button:hover { background: var(--brand-blue-mid); }
+
+        /* Filtros */
+        .filters { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; align-items: center; }
+        .filter-select {
+            padding: 9px 16px; border-radius: 999px;
+            border: 1.5px solid var(--gray-200); background: #fff;
+            font-size: .88rem; font-weight: 600; color: var(--gray-600);
+            cursor: pointer; outline: none; font-family: inherit;
+            transition: var(--transition);
+        }
+        .filter-select:focus { border-color: var(--brand-blue); }
+        body.dark-mode .filter-select { background: var(--gray-100); color: var(--gray-600); }
+
+        .results-count { margin-left: auto; color: var(--gray-500); font-size: .88rem; font-weight: 500; }
+
+        /* Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px; list-style: none; padding: 0;
+        }
+
+        /* Card profissional */
+        .result-item {
+            padding: 28px; display: flex; flex-direction: column; gap: 16px;
+        }
+        .card-top { display: flex; gap: 14px; align-items: flex-start; }
+        .avatar { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gray-200); flex-shrink: 0; }
+        .card-info { flex: 1; min-width: 0; }
+        .card-info h3 { font-size: 1.05rem; font-weight: 700; color: var(--gray-900); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+        .card-info .card-nome { font-size: .85rem; color: var(--gray-500); font-weight: 500; }
+        .rating-row { display: flex; align-items: center; gap: 5px; margin-top: 5px; }
+        .rating-stars { color: #f59e0b; font-size: .9rem; }
+        .rating-val { font-size: .82rem; font-weight: 700; color: var(--gray-600); }
+        .card-desc { color: var(--gray-500); font-size: .88rem; line-height: 1.6; flex: 1; }
+        .card-sociais { display: flex; gap: 10px; align-items: center; }
+        .social-link { font-size: 1.3rem; text-decoration: none; transition: transform .15s; }
+        .social-link:hover { transform: scale(1.2); }
+
+        .card-actions { display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--gray-100); flex-wrap: wrap; }
+        .card-actions button, .card-actions a {
+            flex: 1; min-width: 90px; padding: 9px 12px;
+            border-radius: 999px; font-size: .82rem; font-weight: 600;
+            cursor: pointer; border: none; font-family: inherit;
+            transition: var(--transition); text-decoration: none;
+            text-align: center; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .btn-ver { background: var(--brand-blue); color: #fff; }
+        .btn-ver:hover { background: var(--brand-blue-mid); }
+        .btn-aval { background: var(--gray-100); color: var(--gray-800); }
+        .btn-aval:hover { background: var(--gray-200); }
+        .btn-report { background: none; color: var(--danger); font-size: 1rem; flex: 0; padding: 9px 13px; border: 1px solid #fca5a5; }
+        .btn-report:hover { background: #fef2f2; }
+
+        .badge-patrocinado {
+            font-size: .72rem; font-weight: 700; background: #fef3c7; color: #92400e;
+            padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* Estado vazio e loading */
+        .grid-loading { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+
+        /* Modal avaliação com estrelas */
+        .stars-row { display: flex; flex-direction: row-reverse; gap: 8px; justify-content: flex-end; margin: 16px 0; }
+        .stars-row input { display: none; }
+        .stars-row label { font-size: 2.2rem; cursor: pointer; color: var(--gray-200); transition: color .1s; }
+        .stars-row input:checked ~ label,
+        .stars-row label:hover,
+        .stars-row label:hover ~ label { color: #f59e0b; }
+
+        /* Select de motivo */
+        .motivo-select { width: 100%; padding: 12px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--gray-200); font-size: .95rem; font-family: inherit; outline: none; margin-bottom: 14px; }
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help<span>.</span></a>
+            <div style="display:flex;align-items:center;gap:14px">
+                <button onclick="toggleDarkMode()" id="dark-mode-btn">🌙</button>
+                <nav class="user-menu">
+                    <a href="loginpage.html" class="btn-ghost" id="nav-login">Entrar</a>
+                    <a href="registerpage.html" class="btn-primary" id="nav-register">Criar conta</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="search-header">
+            <h1>Profissionais <span class="text-gradient">Disponíveis</span></h1>
+            <p>Encontre o talento certo para o que você precisa.</p>
+            <div class="search-bar-wrap">
+                <input type="text" id="campo-busca" placeholder="Buscar por nome, categoria, serviço...">
+                <button id="btn-buscar"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+            </div>
+        </div>
+
+
+        <!-- Toggle Profissionais / Anúncios -->
+        <div style="display:flex;gap:8px;margin-bottom:24px">
+            <button id="tab-profissionais" onclick="setModo('profissionais')" class="btn-primary" style="border-radius:999px;padding:10px 24px;font-size:.88rem">
+                👤 Profissionais
+            </button>
+            <button id="tab-anuncios" onclick="setModo('anuncios')" class="btn-secondary" style="border-radius:999px;padding:10px 24px;font-size:.88rem">
+                📢 Anúncios
+            </button>
+        </div>
+
+        <div class="filters">
+            <select id="filtro-categoria" class="filter-select">
+                <option value="">Todas as categorias</option>
+            </select>
+            <select id="filtro-tipo" class="filter-select">
+                <option value="">Qualquer modalidade</option>
+                <option value="presencial">Presencial</option>
+                <option value="remoto">Remoto</option>
+            </select>
+            <input type="text" id="filtro-cidade" class="filter-select" placeholder="📍 Filtrar por cidade..." style="min-width:180px">
+            <span id="results-count" class="results-count"></span>
+        </div>
+        </div>
+
+        <ul id="results-grid" class="results-grid">
+            <!-- Skeletons de loading -->
+            <li class="skeleton-card"></li>
+            <li class="skeleton-card"></li>
+            <li class="skeleton-card"></li>
+        </ul>
+
+        <div id="paginacao" class="pagination"></div>
+    </main>
+
+    <!-- Modal Avaliação -->
+    <div id="modal-avaliacao" class="modal-overlay">
+        <div class="modal-box">
+            <h3>⭐ Avaliar Profissional</h3>
+            <p style="color:var(--gray-500);margin-bottom:8px;font-size:.9rem">Selecione uma nota de 1 a 5 estrelas:</p>
+            <div class="stars-row">
+                <input type="radio" name="rate" id="s5" value="5"><label for="s5">★</label>
+                <input type="radio" name="rate" id="s4" value="4"><label for="s4">★</label>
+                <input type="radio" name="rate" id="s3" value="3"><label for="s3">★</label>
+                <input type="radio" name="rate" id="s2" value="2"><label for="s2">★</label>
+                <input type="radio" name="rate" id="s1" value="1"><label for="s1">★</label>
+            </div>
+            <div class="input-group">
+                <label>Comentário <small style="color:var(--gray-400)">(opcional)</small></label>
+                <textarea id="texto-avaliacao" rows="3" placeholder="Conte sua experiência com este profissional..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px">
+                <button id="btn-enviar-aval" class="btn-submit" style="margin:0">Enviar Avaliação</button>
+                <button onclick="fecharModais()" class="btn-secondary" style="flex:0;white-space:nowrap">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Denúncia -->
+    <div id="modal-denuncia" class="modal-overlay">
+        <div class="modal-box">
+            <h3>🚨 Denunciar Perfil</h3>
+            <p style="color:var(--gray-500);margin-bottom:16px;font-size:.9rem">Selecione o motivo e descreva o problema:</p>
+            <select id="motivo-denuncia" class="motivo-select">
+                <option value="perfil_falso">Perfil falso / identidade falsa</option>
+                <option value="fraude">Fraude ou golpe</option>
+                <option value="comportamento_abusivo">Comportamento abusivo</option>
+                <option value="servico_nao_entregue">Serviço não entregue</option>
+                <option value="conteudo_inapropriado">Conteúdo inapropriado</option>
+                <option value="outro">Outro motivo</option>
+            </select>
+            <div class="input-group">
+                <label>Descrição</label>
+                <textarea id="texto-denuncia" rows="4" placeholder="Descreva detalhadamente o ocorrido..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px">
+                <button id="btn-enviar-den" class="btn-danger" style="flex:1;padding:13px">Enviar Denúncia</button>
+                <button onclick="fecharModais()" class="btn-secondary" style="flex:0;white-space:nowrap">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script src="cidades.js"></script>
+    <script>
+        let profSelecionadoId = null;
+        let paginaAtual = 1;
+        let buscaAtual  = '';
+
+        // ─── Carrega categorias no select ─────────────────────────────────────
+                async function carregarCategorias() {
+            try {
+                const data = await API.users.getCategorias();
+                const sel  = document.getElementById('filtro-categoria');
+                // getCategorias retorna objetos {nome, icone} ou strings — trata os dois casos
+                data.categorias.forEach(c => {
+                    const o = document.createElement('option');
+                    if (c && typeof c === 'object') {
+                        o.value       = c.nome || '';
+                        o.textContent = `${c.icone || ''} ${c.nome || ''}`.trim();
+                    } else if (typeof c === 'string') {
+                        o.value = c; o.textContent = c;
+                    } else {
+                        return; // ignora valores inválidos
+                    }
+                    if (o.value) sel.appendChild(o);
+                });
+            } catch (_) {}
+        }
+
+        // ─── Renderiza cards ──────────────────────────────────────────────────
+        function renderStars(nota) {
+            const n = Math.round(nota || 0);
+            return '★'.repeat(n) + '☆'.repeat(5 - n);
+        }
+
+        // ─── Modo: profissionais ou anúncios ──────────────────────────────
+        let modoAtual = 'profissionais';
+
+        function setModo(modo) {
+            modoAtual = modo;
+            const btnP = document.getElementById('tab-profissionais');
+            const btnA = document.getElementById('tab-anuncios');
+            if (modo === 'profissionais') {
+                btnP.className = 'btn-primary';  btnP.style.cssText = 'border-radius:999px;padding:10px 24px;font-size:.88rem';
+                btnA.className = 'btn-secondary'; btnA.style.cssText = 'border-radius:999px;padding:10px 24px;font-size:.88rem';
+            } else {
+                btnA.className = 'btn-primary';  btnA.style.cssText = 'border-radius:999px;padding:10px 24px;font-size:.88rem';
+                btnP.className = 'btn-secondary'; btnP.style.cssText = 'border-radius:999px;padding:10px 24px;font-size:.88rem';
+            }
+            buscar(1);
+        }
+
+        // ─── Card de anúncio ───────────────────────────────────────────────
+        function renderAnuncioCard(a) {
+            const prof    = a.profissionalId || {};
+            const avatar  = prof.fotoUrl && !prof.fotoUrl.includes('Default')
+                ? prof.fotoUrl
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(prof.nome||'P')}&background=1d4ed8&color=fff&bold=true`;
+            const cats    = Array.isArray(prof.profissional?.categoria)
+                ? prof.profissional.categoria[0] || ''
+                : (prof.profissional?.categoria || '');
+            const valor   = a.valor?.valor ? `R$ ${parseFloat(a.valor.valor).toFixed(2)}` : 'Consultar';
+            const banner  = a.imagemUrl
+                ? `<img src="${a.imagemUrl}" alt="${a.titulo}" style="width:100%;height:140px;object-fit:cover">`
+                : `<div style="width:100%;height:140px;background:linear-gradient(135deg,var(--brand-violet),var(--brand-blue));display:flex;align-items:center;justify-content:center;font-size:2.5rem">📋</div>`;
+
+            return `
+                <li class="result-item glass-card" style="padding:0;overflow:hidden;cursor:pointer" onclick="window.location.href='anuncio.html?id=${a._id}'">
+                    ${banner}
+                    <div style="padding:18px 20px">
+                        <div style="font-size:.72rem;font-weight:700;color:var(--brand-blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${a.categoria}</div>
+                        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--gray-900)">${a.titulo}</h3>
+                        <p style="font-size:.82rem;color:var(--gray-500);line-height:1.5;margin-bottom:12px">${a.descricao?.substring(0,80)}...</p>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--gray-100)">
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <img src="${avatar}" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
+                                <span style="font-size:.78rem;font-weight:600;color:var(--gray-600)">${prof.nome||'Profissional'}</span>
+                            </div>
+                            <span style="font-size:.82rem;font-weight:700;color:var(--brand-blue)">${valor}</span>
+                        </div>
+                    </div>
+                </li>`;
+        }
+
+        function renderCard(p) {
+            const prof       = p.profissional || {};
+            const fotoUrl    = p.fotoUrl && !p.fotoUrl.includes('Default') ? p.fotoUrl : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nome)}&background=1d4ed8&color=fff&bold=true`;
+            const isPat      = prof.isPatrocinado;
+            const nota       = prof.avaliacao ? prof.avaliacao.toFixed(1) : null;
+            const totalAval  = prof.totalAvaliacoes || 0;
+
+            let sociais = '';
+            if (prof.whatsapp) sociais += `<a href="https://wa.me/${prof.whatsapp}" target="_blank" class="social-link" style="color:#25D366" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
+            if (prof.redesSociais?.instagram) sociais += `<a href="https://instagram.com/${prof.redesSociais.instagram}" target="_blank" class="social-link" style="color:#E1306C" title="Instagram"><i class="fa-brands fa-instagram"></i></a>`;
+            if (prof.redesSociais?.linkedin) sociais += `<a href="${prof.redesSociais.linkedin}" target="_blank" class="social-link" style="color:#0077B5" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>`;
+
+            return `
+                <li class="result-item glass-card ${isPat ? 'destaque' : ''}" style="${isPat ? 'border:2px solid #fbbf24' : ''}">
+                    <div class="card-top">
+                        <img src="${fotoUrl}" alt="Foto" class="avatar" onerror="this.src='images/Default_FotoPerfil.png'">
+                        <div class="card-info">
+                            <h3>
+                                ${prof.categoria || 'Profissional'}
+                                ${isPat ? '<span class="badge-patrocinado">✓ Verificado</span>' : ''}
+                            </h3>
+                            <div class="card-nome">${p.nome}</div>
+                            <div class="rating-row">
+                                <span class="rating-stars">${renderStars(prof.avaliacao)}</span>
+                                <span class="rating-val">${nota ? `${nota} (${totalAval})` : 'Novo'}</span>
+                            </div>
+                        </div>
+                        <div class="card-sociais">${sociais}</div>
+                    </div>
+                    <p class="card-desc">${prof.descricao || 'Profissional parceiro Da1Help.'}</p>
+                    <div style="margin-bottom:8px">
+                        ${prof.cidade ? `<span style="font-size:.75rem;color:var(--gray-500)">📍 ${prof.cidade}</span>` : ''}
+                        ${prof.tipoServico ? `<span style="font-size:.75rem;color:var(--gray-500);margin-left:${prof.cidade ? '10px' : '0'}">${prof.tipoServico === 'presencial' ? '🏠 Presencial' : prof.tipoServico === 'remoto' ? '💻 Remoto' : '🔄 Pres. e Remoto'}</span>` : ''}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-ver" onclick="verPerfil('${p._id}')">👤 Perfil</button>
+                        <button class="btn-aval" style="background:var(--brand-violet-lt);color:var(--brand-violet)" onclick="window.location.href='searchpage.html?prof=${p._id}'">🔖 Anúncios</button>
+                        <button class="btn-aval" onclick="abrirAvaliacao('${p._id}')">⭐ Avaliar</button>
+                        <button class="btn-report btn-secondary" onclick="abrirDenuncia('${p._id}')" title="Denunciar"><i class="fa-solid fa-flag"></i></button>
+                    </div>
+                </li>
+            `;
+        }
+
+        // ─── Busca profissionais ──────────────────────────────────────────────
+
+        // ─── Busca profissionais ou anúncios ─────────────────────────────────
+        async function buscar(page = 1) {
+            const grid    = document.getElementById('results-grid');
+            const countEl = document.getElementById('results-count');
+            const busca      = document.getElementById('campo-busca').value.trim();
+            const catEl      = document.getElementById('filtro-categoria');
+            const categoria  = catEl ? catEl.value : '';
+            const cidadeEl   = document.getElementById('filtro-cidade');
+            const cidade     = cidadeEl ? cidadeEl.value.trim() : '';
+            const tipoEl     = document.getElementById('filtro-tipo');
+            const tipoServico = tipoEl ? tipoEl.value : '';
+
+            grid.innerHTML = Array(6).fill('<li class="skeleton-card"></li>').join('');
+            buscaAtual  = busca;
+            paginaAtual = page;
+
+            try {
+                if (modoAtual === 'anuncios') {
+                    // ─── Busca anúncios ──────────────────────────────────────
+                    const params = { page, limit: 12 };
+                    if (busca)        params.busca       = busca;
+                    if (categoria)    params.categoria   = categoria;
+                    if (tipoServico)  params.tipoServico = tipoServico;
+
+                    const data  = await API.anuncios.listar(params);
+                    const { anuncios, pagination } = data;
+
+                    if (!anuncios.length) {
+                        grid.innerHTML = `<li style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum anúncio encontrado.</p></div></li>`;
+                        countEl.textContent = '';
+                        document.getElementById('paginacao').innerHTML = '';
+                        return;
+                    }
+                    grid.innerHTML = anuncios.map(renderAnuncioCard).join('');
+                    countEl.textContent = `${pagination.total} anúncio${pagination.total !== 1 ? 's' : ''} encontrado${pagination.total !== 1 ? 's' : ''}`;
+                    renderPaginacao(pagination);
+
+                } else {
+                    // ─── Busca profissionais ─────────────────────────────────
+                    const params = { page, limit: 12 };
+                    if (busca)        params.busca       = busca;
+                    if (categoria)    params.categoria   = categoria;
+                    if (cidade)       params.cidade      = cidade;
+                    if (tipoServico)  params.tipoServico = tipoServico;
+
+                    const data = await API.users.getProfissionais(params);
+                    const { profissionais, pagination } = data;
+
+                    if (!profissionais.length) {
+                        grid.innerHTML = `<li style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhum profissional encontrado para <strong>"${busca || categoria || cidade || 'essa busca'}"</strong>.</p></div></li>`;
+                        countEl.textContent = '';
+                        document.getElementById('paginacao').innerHTML = '';
+                        return;
+                    }
+                    grid.innerHTML = profissionais.map(renderCard).join('');
+                    countEl.textContent = `${pagination.total} profissional${pagination.total !== 1 ? 'is' : ''} encontrado${pagination.total !== 1 ? 's' : ''}`;
+                    renderPaginacao(pagination);
+                }
+            } catch (err) {
+                grid.innerHTML = `<li style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">⚠️</div><p>Erro ao carregar. Tente novamente.</p></div></li>`;
+            }
+        }
+
+
+        function renderPaginacao({ page, totalPages }) {
+            const pag = document.getElementById('paginacao');
+            if (totalPages <= 1) { pag.innerHTML = ''; return; }
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="buscar(${i})">${i}</button>`;
+            }
+            pag.innerHTML = html;
+        }
+
+        // ─── Modais ───────────────────────────────────────────────────────────
+        function abrirAvaliacao(id) {
+            if (!Session.isLoggedIn()) { Toast.warning('Faça login para avaliar.'); return; }
+            profSelecionadoId = id;
+            document.getElementById('modal-avaliacao').classList.add('active');
+        }
+
+        function abrirDenuncia(id) {
+            if (!Session.isLoggedIn()) { Toast.warning('Faça login para denunciar.'); return; }
+            profSelecionadoId = id;
+            document.getElementById('modal-denuncia').classList.add('active');
+        }
+
+        function fecharModais() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        }
+
+        function verPerfil(id) { window.location.href = `perfil-profissional.html?id=${id}`; }
+
+        // ─── Envio avaliação ──────────────────────────────────────────────────
+        document.getElementById('btn-enviar-aval').addEventListener('click', async () => {
+            const estrela = document.querySelector('input[name="rate"]:checked');
+            if (!estrela) { Toast.warning('Selecione uma nota de 1 a 5 estrelas.'); return; }
+
+            const btn = document.getElementById('btn-enviar-aval');
+            btn.textContent = 'Enviando...'; btn.disabled = true;
+
+            try {
+                await API.users.avaliar(profSelecionadoId, {
+                    nota:      Number(estrela.value),
+                    comentario: document.getElementById('texto-avaliacao').value.trim(),
+                });
+                Toast.success('Avaliação enviada com sucesso!');
+                fecharModais();
+                buscar(paginaAtual);
+            } catch (err) {
+                Toast.error(err.message || 'Erro ao enviar avaliação.');
+            } finally {
+                btn.textContent = 'Enviar Avaliação'; btn.disabled = false;
+            }
+        });
+
+        // ─── Envio denúncia ───────────────────────────────────────────────────
+        document.getElementById('btn-enviar-den').addEventListener('click', async () => {
+            const descricao = document.getElementById('texto-denuncia').value.trim();
+            if (!descricao) { Toast.warning('Descreva o motivo da denúncia.'); return; }
+
+            const btn = document.getElementById('btn-enviar-den');
+            btn.textContent = 'Enviando...'; btn.disabled = true;
+
+            try {
+                await API.users.denunciar(profSelecionadoId, {
+                    motivo:    document.getElementById('motivo-denuncia').value,
+                    descricao,
+                });
+                Toast.success('Denúncia registrada. Nossa equipe analisará em breve.');
+                fecharModais();
+                document.getElementById('texto-denuncia').value = '';
+            } catch (err) {
+                Toast.error(err.message || 'Erro ao enviar denúncia.');
+            } finally {
+                btn.textContent = 'Enviar Denúncia'; btn.disabled = false;
+            }
+        });
+
+        // Fecha modal clicando fora
+        document.querySelectorAll('.modal-overlay').forEach(m => {
+            m.addEventListener('click', (e) => { if (e.target === m) fecharModais(); });
+        });
+
+        // Pré-popula busca vinda da homepage
+        const termoBusca = localStorage.getItem('termoBusca');
+        if (termoBusca) {
+            document.getElementById('campo-busca').value = termoBusca;
+            localStorage.removeItem('termoBusca');
+        }
+
+
+        // Search triggers
+        document.getElementById('btn-buscar').addEventListener('click', () => buscar(1));
+        document.getElementById('campo-busca').addEventListener('keypress', (e) => { if (e.key === 'Enter') buscar(1); });
+        document.getElementById('filtro-categoria').addEventListener('change', () => buscar(1));
+        document.getElementById('filtro-tipo').addEventListener('change', () => buscar(1));
+        // Debounce no input manual; disparo imediato no 'change' (autocomplete)
+        document.getElementById('filtro-cidade').addEventListener('input', () => {
+            clearTimeout(window._cidadeTimer);
+            window._cidadeTimer = setTimeout(() => buscar(1), 500);
+        });
+        document.getElementById('filtro-cidade').addEventListener('change', () => {
+            clearTimeout(window._cidadeTimer);
+            buscar(1);
+        });
+
+        // Init
+        carregarCategorias();
+        buscar(1);
+        initCidadeAutocomplete('filtro-cidade');
+    </script>
+</body>
+</html>

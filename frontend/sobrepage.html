@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Sobre Nós</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        body { display: flex; flex-direction: column; }
+        .main-content { max-width: 1100px; margin: 0 auto; padding: 80px 24px 100px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .page-header { text-align: center; margin-bottom: 64px; }
+        .page-header h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 16px; color: var(--gray-900); }
+        .page-header p  { font-size: 1.15rem; color: var(--gray-500); max-width: 540px; margin: 0 auto; line-height: 1.65; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; width: 100%; margin-bottom: 72px; }
+        .info-card { padding: 40px 32px; border-radius: var(--radius-xl); text-align: center; display: flex; flex-direction: column; align-items: center; transition: var(--transition); }
+        .card-icon { font-size: 2rem; background: var(--gray-100); width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 22px; transition: var(--transition); }
+        .info-card:hover .card-icon { background: var(--brand-blue-lt); transform: scale(1.1); }
+        .info-card h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 14px; color: var(--gray-900); }
+        .info-card p  { color: var(--gray-500); line-height: 1.65; font-size: .95rem; }
+        .values-list { list-style: none; width: 100%; margin-top: 4px; padding: 0; }
+        .values-list li { padding: 10px 0; color: var(--gray-600); font-weight: 600; border-bottom: 1px solid var(--gray-100); font-size: .92rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .values-list li:last-child { border-bottom: none; }
+
+        .how-section { width: 100%; margin-bottom: 72px; }
+        .how-section h2 { text-align: center; font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 40px; color: var(--gray-900); }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .step { background: var(--gray-50); border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px 24px; text-align: center; transition: var(--transition); }
+        .step:hover { border-color: var(--brand-blue); background: var(--brand-blue-lt); }
+        .step-num { width: 44px; height: 44px; border-radius: 50%; background: var(--brand-blue); color: #fff; font-weight: 800; font-size: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+        .step h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--gray-900); }
+        .step p  { font-size: .85rem; color: var(--gray-500); line-height: 1.6; }
+
+        .stats-section { width: 100%; background: var(--gray-900); border-radius: var(--radius-xl); padding: 56px 40px; text-align: center; margin-bottom: 72px; }
+        body.dark-mode .stats-section { background: #0d0d1a; }
+        .stats-section h2 { color: #fff; font-size: 1.6rem; font-weight: 800; margin-bottom: 40px; }
+        .stats-row { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
+        .stat-box strong { display: block; font-size: 2.8rem; font-weight: 800; color: #fff; letter-spacing: -2px; line-height: 1; }
+        .stat-box span { font-size: .82rem; color: rgba(255,255,255,.45); font-weight: 600; margin-top: 6px; display: block; text-transform: uppercase; letter-spacing: .5px; }
+
+        .cta-section { text-align: center; }
+        .cta-section h2 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 14px; color: var(--gray-900); }
+        .cta-section p { color: var(--gray-500); margin-bottom: 32px; }
+        .cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+        @media (max-width: 640px) { .page-header h1 { font-size: 2.4rem; } .stats-row { gap: 36px; } }
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help<span>.</span></a>
+            <div style="display:flex;align-items:center;gap:14px">
+                <button onclick="toggleDarkMode()" id="dark-mode-btn">🌙</button>
+                <nav class="user-menu nav-links-desktop">
+                    <a href="sobrepage.html"   class="nav-link">Sobre</a>
+                    <a href="contatopage.html" class="nav-link">Contato</a>
+                    <a href="loginpage.html"   class="btn-ghost" id="nav-login">Entrar</a>
+                    <a href="registerpage.html" class="btn-primary" id="nav-register">Criar conta</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Nossa <span class="text-gradient">Essência</span></h1>
+            <p>Conectando os melhores talentos aos projetos mais ambiciosos, com transparência e qualidade inegociável.</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card glass-card">
+                <div class="card-icon">🎯</div>
+                <h3>Nossa Missão</h3>
+                <p>Simplificar a conexão entre clientes e profissionais de alto nível, garantindo qualidade, segurança e velocidade em cada contratação.</p>
+            </div>
+            <div class="info-card glass-card">
+                <div class="card-icon">👁️</div>
+                <h3>Nossa Visão</h3>
+                <p>Ser a maior e mais confiável plataforma de serviços da região, redefinindo o padrão de qualidade e confiança do mercado.</p>
+            </div>
+            <div class="info-card glass-card">
+                <div class="card-icon">⭐</div>
+                <h3>Nossos Valores</h3>
+                <ul class="values-list">
+                    <li>✦ Transparência Radical</li>
+                    <li>✦ Qualidade Inegociável</li>
+                    <li>✦ Foco absoluto no Cliente</li>
+                    <li>✦ Inovação Contínua</li>
+                </ul>
+            </div>
+        </div>
+
+        <section class="how-section">
+            <h2>Como <span class="text-gradient">funciona</span></h2>
+            <div class="steps-grid">
+                <div class="step"><div class="step-num">1</div><h4>Crie sua conta</h4><p>Cadastro rápido e gratuito. Em menos de 2 minutos você está dentro da plataforma.</p></div>
+                <div class="step"><div class="step-num">2</div><h4>Busque profissionais</h4><p>Filtre por categoria, cidade ou avaliação e encontre o profissional ideal.</p></div>
+                <div class="step"><div class="step-num">3</div><h4>Entre em contato</h4><p>Converse via chat interno ou WhatsApp diretamente com o profissional escolhido.</p></div>
+                <div class="step"><div class="step-num">4</div><h4>Avalie o serviço</h4><p>Após o serviço, deixe sua avaliação e ajude outros clientes a escolherem melhor.</p></div>
+            </div>
+        </section>
+
+        <div class="stats-section">
+            <h2>Da1Help em números</h2>
+            <div class="stats-row">
+                <div class="stat-box"><strong id="stat-profs">—</strong><span>Profissionais</span></div>
+                <div class="stat-box"><strong id="stat-cats">—</strong><span>Categorias</span></div>
+                <div class="stat-box"><strong>4.8★</strong><span>Avaliação média</span></div>
+                <div class="stat-box"><strong>100%</strong><span>Gratuito</span></div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Pronto para começar?</h2>
+            <p>Junte-se a centenas de profissionais e clientes que já confiam no Da1Help.</p>
+            <div class="cta-buttons">
+                <a href="registerpage.html" class="btn-primary" style="font-size:1rem;padding:15px 36px">Criar conta grátis</a>
+                <a href="searchpage.html"   class="btn-secondary" style="font-size:1rem;padding:15px 36px">Explorar profissionais</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        (async () => {
+            try {
+                const [catData, profData] = await Promise.all([
+                    API.users.getCategorias(),
+                    API.users.getProfissionais({ limit: 1 }),
+                ]);
+                document.getElementById('stat-profs').textContent = profData.pagination?.total || '100+';
+                document.getElementById('stat-cats').textContent  = catData.categorias?.length || '20+';
+            } catch (_) {
+                document.getElementById('stat-profs').textContent = '100+';
+                document.getElementById('stat-cats').textContent  = '20+';
+            }
+        })();
+    </script>
+</body>
+</html>

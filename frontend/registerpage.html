@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Criar Conta</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        body { display: flex; flex-direction: column; }
+        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .glass-form { text-align: center; }
+
+        .pro-toggle { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-radius: var(--radius-sm); border: 1.5px solid var(--gray-200); cursor: pointer; margin-bottom: 20px; transition: var(--transition); }
+        .pro-toggle:hover { border-color: var(--brand-blue); background: var(--brand-blue-lt); }
+        .pro-toggle input { width: 18px; height: 18px; accent-color: var(--brand-blue); cursor: pointer; }
+        .pro-toggle span { font-weight: 600; font-size: .9rem; color: var(--gray-600); }
+
+        .pro-fields { display: none; border-left: 3px solid var(--brand-blue); padding-left: 18px; margin-bottom: 20px; text-align: left; }
+        .pro-fields.show { display: block; animation: slideDown .25s ease; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+
+        /* Multi-select de categorias */
+        .cats-label { display: block; font-weight: 600; font-size: .88rem; color: var(--gray-600); margin-bottom: 10px; }
+        .cats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 260px; overflow-y: auto; padding: 4px 2px; }
+        .cats-grid::-webkit-scrollbar { width: 4px; }
+        .cats-grid::-webkit-scrollbar-track { background: var(--gray-100); border-radius: 4px; }
+        .cats-grid::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 4px; }
+
+        .cat-option { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--gray-200); cursor: pointer; transition: var(--transition); font-size: .85rem; font-weight: 600; color: var(--gray-600); user-select: none; }
+        .cat-option:hover { border-color: var(--brand-blue); background: var(--brand-blue-lt); color: var(--brand-blue); }
+        .cat-option.selected { border-color: var(--brand-blue); background: var(--brand-blue); color: #fff; }
+        .cat-option .cat-icone { font-size: 1rem; }
+        .cats-hint { font-size: .78rem; color: var(--gray-400); margin-top: 8px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help<span>.</span></a>
+            <div style="display:flex;align-items:center;gap:8px">
+                <button onclick="toggleDarkMode()" id="dark-mode-btn">🌙</button>
+                <nav class="user-menu">
+                    <a href="loginpage.html" class="btn-ghost">Entrar</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-wrapper">
+        <div class="glass-form">
+            <h2>Junte-se a nós</h2>
+            <p>Crie sua conta e conecte-se aos melhores profissionais.</p>
+
+            <form id="form-registro">
+                <div class="input-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" data-capitalize placeholder="Como quer ser chamado?" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="nome@exemplo.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha <small style="color:var(--gray-400)">(mín. 6 caracteres)</small></label>
+                    <input type="password" id="password" placeholder="Crie uma senha forte" required minlength="6">
+                </div>
+                <div class="input-group">
+                    <label for="cpfCnpj">CPF ou CNPJ</label>
+                    <input type="text" id="cpfCnpj" placeholder="000.000.000-00" required maxlength="18" inputmode="numeric">
+                </div>
+
+                <label class="pro-toggle">
+                    <input type="checkbox" id="check-profissional">
+                    <span>🔧 Quero oferecer meus serviços como profissional</span>
+                </label>
+
+                <div id="campos-profissional" class="pro-fields">
+                    <!-- Categorias múltiplas -->
+                    <span class="cats-label">Suas Categorias / Profissões</span>
+                    <div id="cats-grid" class="cats-grid">
+                        <div style="color:var(--gray-400);font-size:.85rem;grid-column:1/-1;padding:8px">Carregando categorias...</div>
+                    </div>
+                    <p class="cats-hint">Selecione uma ou mais categorias que se aplicam a você.</p>
+
+                    <div class="input-group">
+                        <label for="whatsapp">WhatsApp <small style="color:var(--gray-400)">(só números)</small></label>
+                        <input type="text" id="whatsapp" data-mask="telefone" placeholder="(99) 99999-9999" maxlength="15">
+                    </div>
+                    <div class="input-group">
+                        <label for="descricao-pro">Descrição Profissional</label>
+                        <textarea id="descricao-pro" rows="3" placeholder="Apresente-se brevemente aos clientes..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-cadastrar" class="btn-submit">Criar minha conta</button>
+                <p class="switch-auth">Já tem uma conta? <a href="loginpage.html">Faça login</a></p>
+            </form>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        if (Session.isLoggedIn()) window.location.href = 'perfil.html';
+
+        let categoriasSelecionadas = [];
+
+        // ─── Máscara CPF/CNPJ ─────────────────────────────────────────────────
+        document.getElementById('cpfCnpj').addEventListener('keypress', function (e) {
+            if (!/[0-9]/.test(e.key) && !['Backspace','Delete','Tab','Enter','ArrowLeft','ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('cpfCnpj').addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '');
+            if (v.length <= 11) {
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            } else {
+                v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+                v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+                v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+                v = v.replace(/(\d{4})(\d)/, '$1-$2');
+            }
+            this.value = v;
+        });
+
+        // ─── Carrega categorias do banco ──────────────────────────────────────
+        async function carregarCategorias() {
+            try {
+                const data = await API.categorias.listar();
+                const grid = document.getElementById('cats-grid');
+                grid.innerHTML = data.categorias.map(c => `
+                    <div class="cat-option" data-nome="${c.nome}" onclick="toggleCat(this)">
+                        <span class="cat-icone">${c.icone}</span>
+                        <span>${c.nome}</span>
+                    </div>
+                `).join('');
+            } catch (_) {
+                document.getElementById('cats-grid').innerHTML = `<p style="color:var(--gray-400);font-size:.85rem;grid-column:1/-1">Erro ao carregar categorias.</p>`;
+            }
+        }
+
+        function toggleCat(el) {
+            const nome = el.dataset.nome;
+            el.classList.toggle('selected');
+            if (el.classList.contains('selected')) {
+                if (!categoriasSelecionadas.includes(nome)) categoriasSelecionadas.push(nome);
+            } else {
+                categoriasSelecionadas = categoriasSelecionadas.filter(c => c !== nome);
+            }
+        }
+
+        const checkProf  = document.getElementById('check-profissional');
+        const camposProf = document.getElementById('campos-profissional');
+
+        checkProf.addEventListener('change', () => {
+            camposProf.classList.toggle('show', checkProf.checked);
+            if (checkProf.checked) carregarCategorias();
+        });
+
+        // ─── Submit ───────────────────────────────────────────────────────────
+        // ─── Validação de CPF ─────────────────────────────────────────────────
+        function validarCNPJ(cnpj) {
+            if (/^(\d)\1{13}$/.test(cnpj)) return false; // todos iguais
+            let tamanho = cnpj.length - 2;
+            let numeros = cnpj.substring(0, tamanho);
+            const digitos = cnpj.substring(tamanho);
+            let soma = 0, pos = tamanho - 7;
+            for (let i = tamanho; i >= 1; i--) {
+                soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+            if (resultado !== parseInt(digitos.charAt(0))) return false;
+            tamanho++;
+            numeros = cnpj.substring(0, tamanho);
+            soma = 0; pos = tamanho - 7;
+            for (let i = tamanho; i >= 1; i--) {
+                soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+                if (pos < 2) pos = 9;
+            }
+            resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+            return resultado === parseInt(digitos.charAt(1));
+        }
+
+        function validarCPF(cpf) {
+            if (/^(\d)\1{10}$/.test(cpf)) return false; // todos iguais
+            let soma = 0;
+            for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+            let r = (soma * 10) % 11;
+            if (r === 10 || r === 11) r = 0;
+            if (r !== parseInt(cpf[9])) return false;
+            soma = 0;
+            for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+            r = (soma * 10) % 11;
+            if (r === 10 || r === 11) r = 0;
+            return r === parseInt(cpf[10]);
+        }
+
+        document.getElementById('form-registro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn   = document.getElementById('btn-cadastrar');
+            const isPro = checkProf.checked;
+
+            if (isPro && categoriasSelecionadas.length === 0) {
+                Toast.warning('Selecione pelo menos uma categoria profissional.');
+                return;
+            }
+
+            btn.textContent = 'Criando conta...';
+            btn.disabled    = true;
+
+            const cpfRaw = document.getElementById('cpfCnpj').value.replace(/\D/g, '');
+
+            // Validação de CPF/CNPJ
+            if (cpfRaw.length !== 11 && cpfRaw.length !== 14) {
+                Toast.error('CPF deve ter 11 dígitos ou CNPJ 14 dígitos.');
+                btn.textContent = 'Criar minha conta'; btn.disabled = false;
+                return;
+            }
+            if (cpfRaw.length === 11 && !validarCPF(cpfRaw)) {
+                Toast.error('CPF inválido. Verifique os dígitos informados.');
+                btn.textContent = 'Criar minha conta'; btn.disabled = false;
+                return;
+            }
+            if (cpfRaw.length === 14 && !validarCNPJ(cpfRaw)) {
+                Toast.error('CNPJ inválido. Verifique os dígitos informados.');
+                btn.textContent = 'Criar minha conta'; btn.disabled = false;
+                return;
+            }
+
+            const payload = {
+                nome:    document.getElementById('nome').value.trim(),
+                email:   document.getElementById('email').value.trim(),
+                senha:   document.getElementById('password').value,
+                cpfCnpj: cpfRaw,
+                tipo:    isPro ? 'profissional' : 'cliente',
+            };
+
+            if (isPro) {
+                payload.profissional = {
+                    categoria: categoriasSelecionadas,
+                    whatsapp:  document.getElementById('whatsapp').value.replace(/\D/g, ''),
+                    descricao: document.getElementById('descricao-pro').value.trim() || 'Novo profissional Da1Help.',
+                };
+            }
+
+            try {
+                await API.auth.register(payload);
+                Toast.success('Conta criada! Redirecionando...');
+                setTimeout(() => window.location.href = 'loginpage.html', 1500);
+            } catch (err) {
+                Toast.error(err.message || 'Erro ao criar conta.');
+                btn.textContent = 'Criar minha conta';
+                btn.disabled    = false;
+            }
+        });
+    </script>
+</body>
+</html>

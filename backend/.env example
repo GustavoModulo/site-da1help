@@ -1,0 +1,26 @@
+# Servidor
+PORT=3000
+NODE_ENV=development
+
+# MongoDB Atlas
+MONGO_URI=mongodb+srv://USUARIO:SENHA@cluster.mongodb.net/da1help
+
+# JWT
+JWT_SECRET=coloque_uma_string_longa_e_aleatoria_aqui
+JWT_EXPIRES_IN=7d
+
+# Admin
+ADMIN_EMAIL=seu@email.com
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=seu_cloud_name
+CLOUDINARY_API_KEY=sua_api_key
+CLOUDINARY_API_SECRET=seu_api_secret
+
+# Resend
+RESEND_API_KEY=re_sua_chave_aqui
+EMAIL_FROM=Da1Help <contato@seudominio.com.br>
+
+# URL da aplicação
+APP_URL=http://localhost:3000
+CORS_ORIGINS=http://localhost:3000

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Nova Senha</title>
+    <link rel="stylesheet" href="global.css">
+    <style>
+        body { display: flex; flex-direction: column; }
+        .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .glass-form { text-align: center; }
+        .error-state { display: none; text-align: center; padding: 20px 0; }
+        .error-state .icon { font-size: 3rem; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help<span>.</span></a>
+            <div style="display:flex;align-items:center;gap:8px">
+                <button onclick="toggleDarkMode()" id="dark-mode-btn">🌙</button>
+                <nav class="user-menu">
+                    <a href="loginpage.html" class="btn-ghost">← Voltar ao login</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-wrapper">
+        <div class="glass-form">
+
+            <!-- Token válido — formulário de nova senha -->
+            <div id="form-state">
+                <div style="font-size:2.5rem;margin-bottom:16px">🔒</div>
+                <h2>Criar Nova Senha</h2>
+                <p style="color:var(--gray-500);margin-bottom:28px">Escolha uma senha forte para sua conta.</p>
+
+                <form id="form-reset">
+                    <input type="hidden" id="reset-token">
+                    <div class="input-group">
+                        <label for="nova-senha">Nova Senha</label>
+                        <input type="password" id="nova-senha" placeholder="Mínimo 6 caracteres"
+                               required minlength="6" autocomplete="new-password">
+                    </div>
+                    <div class="input-group">
+                        <label for="confirmar-senha">Confirmar Senha</label>
+                        <input type="password" id="confirmar-senha" placeholder="Repita a senha"
+                               required autocomplete="new-password">
+                    </div>
+                    <button type="submit" id="btn-reset" class="btn-submit">Redefinir Senha</button>
+                </form>
+            </div>
+
+            <!-- Token inválido ou ausente -->
+            <div class="error-state" id="error-state">
+                <div class="icon">⚠️</div>
+                <h3 style="margin-bottom:8px">Link inválido ou expirado</h3>
+                <p style="color:var(--gray-500);margin-bottom:24px">
+                    Este link de redefinição já foi usado ou expirou.<br>
+                    Solicite um novo link de recuperação.
+                </p>
+                <a href="esquecipassword.html" class="btn-primary" style="display:inline-flex">
+                    Solicitar novo link
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const token  = params.get('token');
+
+        if (!token) {
+            document.getElementById('form-state').style.display  = 'none';
+            document.getElementById('error-state').style.display = 'block';
+        } else {
+            document.getElementById('reset-token').value = token;
+        }
+
+        document.getElementById('form-reset').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn       = document.getElementById('btn-reset');
+            const novaSenha = document.getElementById('nova-senha').value;
+            const confirmar = document.getElementById('confirmar-senha').value;
+
+            if (novaSenha !== confirmar) {
+                Toast.error('As senhas não coincidem.');
+                return;
+            }
+
+            btn.textContent = 'Salvando...';
+            btn.disabled    = true;
+
+            try {
+                await API.auth.resetPassword({ token, novaSenha });
+                Toast.success('Senha redefinida com sucesso! Redirecionando...');
+                setTimeout(() => window.location.href = 'loginpage.html', 1800);
+            } catch (err) {
+                Toast.error(err.message || 'Link expirado. Solicite um novo.');
+                // Mostra o estado de erro
+                document.getElementById('form-state').style.display  = 'none';
+                document.getElementById('error-state').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

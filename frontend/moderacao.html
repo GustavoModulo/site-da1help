@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Redirecionando...</title>
+</head>
+<body>
+    <script src="api.js"></script>
+    <script>
+        const u = Session.getUser();
+        window.location.replace(u && u.tipo === 'admin' ? 'admin.html' : 'homepage.html');
+    </script>
+</body>
+</html>

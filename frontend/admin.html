@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Painel Admin</title>
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { display: flex; flex-direction: column; }
+        .admin-layout { display: flex; flex: 1; min-height: calc(100vh - 70px); }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px; background: var(--gray-900); color: #fff;
+            padding: 28px 0; display: flex; flex-direction: column;
+            position: sticky; top: 70px; height: calc(100vh - 70px);
+            overflow-y: auto; flex-shrink: 0;
+        }
+        body.dark-mode .sidebar { background: #0d0d1a; }
+        .sidebar-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.35); padding: 0 22px 10px; margin-top: 20px; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 11px;
+            padding: 12px 22px; color: rgba(255,255,255,.7);
+            text-decoration: none; font-size: .9rem; font-weight: 500;
+            transition: var(--transition); cursor: pointer; border: none;
+            background: none; width: 100%; text-align: left; font-family: inherit;
+        }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(255,255,255,.08); color: #fff; border-left: 3px solid var(--brand-blue); }
+        .sidebar-link .badge { margin-left: auto; background: var(--danger); color: #fff; font-size: .7rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+
+        /* Main */
+        .admin-main { flex: 1; padding: 36px; overflow-y: auto; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; margin-bottom: 32px; }
+        .stat-card { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px 22px; }
+        body.dark-mode .stat-card { background: var(--gray-100); border-color: var(--gray-200); }
+        .stat-card .stat-icon { font-size: 1.6rem; margin-bottom: 10px; }
+        .stat-card .stat-num { font-size: 2rem; font-weight: 800; color: var(--gray-900); line-height: 1; }
+        .stat-card .stat-label { font-size: .78rem; color: var(--gray-400); font-weight: 500; margin-top: 5px; }
+        .stat-card.highlight { background: var(--brand-blue); border-color: transparent; }
+        .stat-card.highlight .stat-num, .stat-card.highlight .stat-label { color: #fff; }
+
+        /* Seções */
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+        .section-header h2 { font-size: 1.1rem; font-weight: 800; }
+
+        /* Tabela */
+        .admin-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+        .admin-table th { text-align: left; padding: 10px 16px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--gray-400); background: var(--gray-50); border-bottom: 1px solid var(--gray-200); }
+        .admin-table td { padding: 13px 16px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+        .admin-table tr:last-child td { border-bottom: none; }
+        .admin-table tr:hover td { background: var(--gray-50); }
+        body.dark-mode .admin-table th { background: var(--gray-100); }
+
+        .user-row-info { display: flex; align-items: center; gap: 10px; }
+        .mini-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+        .user-row-info .user-nome { font-weight: 700; font-size: .9rem; }
+        .user-row-info .user-email { font-size: .78rem; color: var(--gray-400); }
+
+        .table-badge { font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+        .tb-cliente { background: var(--brand-blue-lt); color: var(--brand-blue); }
+        .tb-profissional { background: var(--brand-violet-lt); color: var(--brand-violet); }
+        .tb-admin { background: #fef3c7; color: #92400e; }
+        .tb-bloqueado { background: #fef2f2; color: var(--danger); }
+        .tb-pendente { background: #fef3c7; color: #92400e; }
+        .tb-resolvida { background: #dcfce7; color: #166534; }
+
+        /* Tabs do admin */
+        .admin-tabs { display: flex; gap: 4px; background: var(--gray-100); padding: 4px; border-radius: 14px; margin-bottom: 24px; }
+        .admin-tab { flex: 1; padding: 10px 14px; border: none; background: transparent; border-radius: 10px; font-weight: 600; font-size: .85rem; cursor: pointer; transition: var(--transition); font-family: inherit; color: var(--gray-500); }
+        .admin-tab.active { background: #fff; color: var(--gray-900); box-shadow: var(--shadow-sm); }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; animation: fadeTab .2s ease; }
+        @keyframes fadeTab { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+        /* Filtros */
+        .filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-row select, .filter-row input { padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--gray-200); font-size: .85rem; font-family: inherit; outline: none; }
+
+        @media (max-width: 768px) {
+            .admin-layout { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: static; flex-direction: row; overflow-x: auto; padding: 8px; }
+            .sidebar-title { display: none; }
+            .sidebar-link { padding: 10px 14px; white-space: nowrap; font-size: .82rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .admin-main { padding: 20px 16px; }
+        }
+        @media (max-width: 400px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .sidebar-link { padding: 8px 10px; font-size: .78rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="glass-header">
+        <div class="nav-container">
+            <a href="homepage.html" class="logo">Da1Help<span>.</span></a>
+            <div style="display:flex;align-items:center;gap:14px">
+                <button onclick="toggleDarkMode()" id="dark-mode-btn">🌙</button>
+                <span id="admin-badge" style="background:#fef3c7;color:#92400e;font-size:.78rem;font-weight:700;padding:4px 12px;border-radius:20px">🛡️ Admin</span>
+                <button onclick="logout()" class="btn-ghost" style="font-size:.88rem">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <span class="sidebar-title">Principal</span>
+            <button class="sidebar-link active" onclick="abrirSecao('dashboard', this)"><i class="fa-solid fa-chart-line fa-fw"></i> Dashboard</button>
+            <span class="sidebar-title">Gestão</span>
+            <button class="sidebar-link" onclick="abrirSecao('usuarios', this)"><i class="fa-solid fa-users fa-fw"></i> Usuários</button>
+            <button class="sidebar-link" onclick="abrirSecao('denuncias', this)"><i class="fa-solid fa-flag fa-fw"></i> Denúncias <span id="badge-den" class="badge" style="display:none">0</span></button>
+            <button class="sidebar-link" onclick="abrirSecao('anuncios', this)"><i class="fa-solid fa-bullhorn fa-fw"></i> Anúncios</button>
+            <button class="sidebar-link" onclick="abrirSecao('categorias', this)"><i class="fa-solid fa-tags fa-fw"></i> Categorias</button>
+        </aside>
+
+        <main class="admin-main">
+
+            <!-- Dashboard -->
+            <div id="secao-dashboard" class="admin-section active">
+                <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:24px">Visão Geral</h1>
+                <div id="stats-grid" class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num">—</div><div class="stat-label">Carregando...</div></div>
+                </div>
+            </div>
+
+            <!-- Usuários -->
+            <div id="secao-usuarios" class="admin-section">
+                <div class="section-header">
+                    <h2>Usuários Cadastrados</h2>
+                </div>
+                <div class="filter-row">
+                    <select id="filtro-tipo-user" onchange="carregarUsuarios()">
+                        <option value="">Todos os tipos</option>
+                        <option value="cliente">Clientes</option>
+                        <option value="profissional">Profissionais</option>
+                        <option value="admin">Admins</option>
+                    </select>
+                    <select id="filtro-blocked" onchange="carregarUsuarios()">
+                        <option value="">Todos</option>
+                        <option value="true">Bloqueados</option>
+                        <option value="false">Ativos</option>
+                    </select>
+                </div>
+                <div class="glass-card" style="overflow-x:auto">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>Usuário</th><th>Tipo</th><th>Status</th><th>Cadastro</th><th>Ações</th>
+                        </tr></thead>
+                        <tbody id="tbody-usuarios">
+                            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--gray-400)">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pag-usuarios" class="pagination" style="margin-top:20px"></div>
+            </div>
+
+            <!-- Denúncias -->
+            <div id="secao-denuncias" class="admin-section">
+                <div class="section-header"><h2>Denúncias</h2></div>
+                <div class="filter-row">
+                    <select id="filtro-status-den" onchange="carregarDenuncias()">
+                        <option value="">Todos os status</option>
+                        <option value="pendente">Pendentes</option>
+                        <option value="em_analise">Em análise</option>
+                        <option value="resolvida">Resolvidas</option>
+                        <option value="arquivada">Arquivadas</option>
+                    </select>
+                </div>
+                <div class="glass-card" style="overflow-x:auto">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>Denunciado</th><th>Denunciante</th><th>Motivo</th><th>Status</th><th>Data</th><th>Ações</th>
+                        </tr></thead>
+                        <tbody id="tbody-denuncias">
+                            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400)">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Anúncios -->
+            <div id="secao-anuncios" class="admin-section">
+                <div class="section-header"><h2>Todos os Anúncios</h2></div>
+                <div class="glass-card" style="overflow-x:auto">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>Título</th><th>Profissional</th><th>Categoria</th><th>Status</th><th>Views</th><th>Ações</th>
+                        </tr></thead>
+                        <tbody id="tbody-anuncios">
+                            <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray-400)">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <!-- Categorias -->
+            <div id="secao-categorias" class="admin-section">
+                <div class="section-header">
+                    <h2>Categorias</h2>
+                    <button onclick="abrirModalCategoria()" class="btn-primary" style="font-size:.85rem;padding:10px 20px">
+                        <i class="fa-solid fa-plus"></i> Nova Categoria
+                    </button>
+                </div>
+                <div class="glass-card" style="overflow-x:auto">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>Ícone</th><th>Nome</th><th>Status</th><th>Ações</th>
+                        </tr></thead>
+                        <tbody id="tbody-categorias">
+                            <tr><td colspan="4" style="text-align:center;padding:40px;color:var(--gray-400)">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal resolver denúncia -->
+    <div id="modal-resolver-den" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Resolver Denúncia</h3>
+            <input type="hidden" id="den-id-selecionada">
+            <div class="input-group">
+                <label>Novo Status</label>
+                <select id="den-novo-status">
+                    <option value="em_analise">Em análise</option>
+                    <option value="resolvida">Resolvida</option>
+                    <option value="arquivada">Arquivada</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Resolução / Observação</label>
+                <textarea id="den-resolucao" rows="3" placeholder="Descreva a ação tomada..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px">
+                <button id="btn-salvar-den" class="btn-submit" style="margin:0">Salvar</button>
+                <button onclick="fecharModais()" class="btn-secondary" style="flex:0;white-space:nowrap">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Categoria -->
+    <div id="modal-categoria" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="modal-cat-title">➕ Nova Categoria</h3>
+            <input type="hidden" id="cat-edit-id">
+            <div class="input-group">
+                <label>Ícone (emoji)</label>
+                <input type="text" id="cat-icone" placeholder="🛠️" maxlength="4">
+            </div>
+            <div class="input-group">
+                <label>Nome da Categoria</label>
+                <input type="text" id="cat-nome" placeholder="Ex: Eletricista" required>
+            </div>
+            <div class="input-group">
+                <label>Status</label>
+                <select id="cat-ativa">
+                    <option value="true">Ativa</option>
+                    <option value="false">Inativa</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px">
+                <button id="btn-salvar-cat" class="btn-submit" style="margin:0">Salvar</button>
+                <button onclick="fecharModais()" class="btn-secondary" style="flex:0;white-space:nowrap">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        // Guard admin robusto — verifica imediatamente e também no DOMContentLoaded
+        function verificarAdmin() {
+            const token = localStorage.getItem('da1help_token');
+            const userStr = localStorage.getItem('da1help_user');
+            if (!token || !userStr) {
+                window.location.replace('loginpage.html');
+                return false;
+            }
+            try {
+                const u = JSON.parse(userStr);
+                if (!u || u.tipo !== 'admin') {
+                    window.location.replace('loginpage.html');
+                    return false;
+                }
+            } catch(_) {
+                window.location.replace('loginpage.html');
+                return false;
+            }
+            return true;
+        }
+
+        // Roda imediatamente (síncrono)
+        if (!verificarAdmin()) { throw new Error('Não autorizado'); }
+
+        // ─── Seções ───────────────────────────────────────────────────────────
+        function abrirSecao(id, btn) {
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-link').forEach(b => b.classList.remove('active'));
+            document.getElementById(`secao-${id}`).classList.add('active');
+            btn.classList.add('active');
+            if (id === 'usuarios')  carregarUsuarios();
+            if (id === 'denuncias') carregarDenuncias();
+            if (id === 'anuncios')  carregarAnuncios();
+        }
+
+        // ─── Dashboard ────────────────────────────────────────────────────────
+        async function carregarDashboard() {
+            try {
+                const data  = await API.admin.getDashboard();
+                const stats = data.stats;
+                const grid  = document.getElementById('stats-grid');
+
+                grid.innerHTML = `
+                    <div class="stat-card highlight"><div class="stat-icon">👥</div><div class="stat-num">${stats.totalUsuarios}</div><div class="stat-label">Total de Usuários</div></div>
+                    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num">${stats.totalProfissionais}</div><div class="stat-label">Profissionais</div></div>
+                    <div class="stat-card"><div class="stat-icon">👤</div><div class="stat-num">${stats.totalClientes}</div><div class="stat-label">Clientes</div></div>
+                    <div class="stat-card"><div class="stat-icon">📢</div><div class="stat-num">${stats.totalAnuncios}</div><div class="stat-label">Anúncios Ativos</div></div>
+                    <div class="stat-card"><div class="stat-icon">🚨</div><div class="stat-num" style="color:${stats.denunciasPendentes > 0 ? 'var(--danger)' : 'inherit'}">${stats.denunciasPendentes}</div><div class="stat-label">Denúncias Pendentes</div></div>
+                    <div class="stat-card"><div class="stat-icon">🔒</div><div class="stat-num">${stats.totalBloqueados}</div><div class="stat-label">Usuários Bloqueados</div></div>
+                    <div class="stat-card"><div class="stat-icon">🆕</div><div class="stat-num">${stats.novosUsuarios}</div><div class="stat-label">Novos (30 dias)</div></div>
+                `;
+
+                // Badge de denúncias no sidebar
+                if (stats.denunciasPendentes > 0) {
+                    const badge = document.getElementById('badge-den');
+                    badge.textContent = stats.denunciasPendentes;
+                    badge.style.display = 'inline';
+                }
+            } catch (err) {
+                Toast.error('Erro ao carregar dashboard.');
+            }
+        }
+
+        // ─── Usuários ─────────────────────────────────────────────────────────
+        let pagUsuarios = 1;
+        async function carregarUsuarios(page = 1) {
+            pagUsuarios = page;
+            const tbody  = document.getElementById('tbody-usuarios');
+            const tipo   = document.getElementById('filtro-tipo-user').value;
+            const blocked = document.getElementById('filtro-blocked').value;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--gray-400)">Carregando...</td></tr>`;
+
+            try {
+                const params = { page, limit: 20 };
+                if (tipo)    params.tipo    = tipo;
+                if (blocked) params.blocked = blocked;
+
+                const data = await API.admin.getUsuarios(params);
+                const usuarios = data.usuarios;
+
+                if (!usuarios.length) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--gray-400)">Nenhum usuário encontrado.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = usuarios.map(u => {
+                    const avatarUrl = u.fotoUrl && !u.fotoUrl.includes('Default')
+                        ? u.fotoUrl
+                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nome)}&background=e5e7eb&color=374151&bold=true`;
+                    const data_fmt = new Date(u.createdAt).toLocaleDateString('pt-BR');
+                    const bloqueadoLabel = u.blocked ? `<span class="table-badge tb-bloqueado">Bloqueado</span>` : `<span class="table-badge" style="background:#dcfce7;color:#166534">Ativo</span>`;
+                    const acoes = u.tipo !== 'admin'
+                        ? (u.blocked
+                            ? `<button onclick="desbloquear('${u._id}')" class="btn-secondary" style="font-size:.78rem;padding:6px 12px">Desbloquear</button>`
+                            : `<button onclick="bloquear('${u._id}','${u.nome}')" class="btn-danger" style="font-size:.78rem">Bloquear</button>`)
+                        : '—';
+                    return `
+                        <tr>
+                            <td><div class="user-row-info"><img src="${avatarUrl}" alt="" class="mini-avatar"><div><div class="user-nome">${u.nome}</div><div class="user-email">${u.email}</div></div></div></td>
+                            <td><span class="table-badge tb-${u.tipo}">${u.tipo}</span></td>
+                            <td>${bloqueadoLabel}</td>
+                            <td style="color:var(--gray-400);font-size:.82rem">${data_fmt}</td>
+                            <td>${acoes}</td>
+                        </tr>`;
+                }).join('');
+
+                // Paginação
+                const { totalPages, page: pg } = data.pagination;
+                const pagEl = document.getElementById('pag-usuarios');
+                if (totalPages > 1) {
+                    pagEl.innerHTML = Array.from({ length: totalPages }, (_, i) =>
+                        `<button class="page-btn ${i + 1 === pg ? 'active' : ''}" onclick="carregarUsuarios(${i + 1})">${i + 1}</button>`
+                    ).join('');
+                }
+            } catch (err) {
+                Toast.error('Erro ao carregar usuários.');
+            }
+        }
+
+        async function bloquear(id, nome) {
+            const motivo = prompt(`Motivo do bloqueio de ${nome}:`);
+            if (motivo === null) return;
+            try {
+                await API.admin.bloquear(id, { motivo });
+                Toast.success(`${nome} bloqueado.`);
+                carregarUsuarios(pagUsuarios);
+            } catch (err) { Toast.error(err.message); }
+        }
+
+        async function desbloquear(id) {
+            try {
+                await API.admin.desbloquear(id);
+                Toast.success('Usuário desbloqueado.');
+                carregarUsuarios(pagUsuarios);
+            } catch (err) { Toast.error(err.message); }
+        }
+
+        // ─── Denúncias ────────────────────────────────────────────────────────
+        async function carregarDenuncias() {
+            const tbody  = document.getElementById('tbody-denuncias');
+            const status = document.getElementById('filtro-status-den').value;
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Carregando...</td></tr>`;
+
+            try {
+                const params = {};
+                if (status) params.status = status;
+                const data = await API.admin.getDenuncias(params);
+                const denuncias = data.denuncias;
+
+                if (!denuncias.length) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Nenhuma denúncia encontrada.</td></tr>`;
+                    return;
+                }
+
+                const motivoLabel = {
+                    perfil_falso: 'Perfil falso', fraude: 'Fraude',
+                    comportamento_abusivo: 'Comportamento abusivo',
+                    servico_nao_entregue: 'Serviço não entregue',
+                    conteudo_inapropriado: 'Conteúdo inapropriado', outro: 'Outro',
+                };
+
+                tbody.innerHTML = denuncias.map(d => {
+                    const data_fmt = new Date(d.createdAt).toLocaleDateString('pt-BR');
+                    return `
+                        <tr>
+                            <td style="font-weight:600">${d.denunciadoId?.nome || '—'}</td>
+                            <td style="color:var(--gray-500)">${d.denuncianteId?.nome || '—'}</td>
+                            <td>${motivoLabel[d.motivo] || d.motivo}</td>
+                            <td><span class="table-badge tb-${d.status}">${d.status}</span></td>
+                            <td style="color:var(--gray-400);font-size:.82rem">${data_fmt}</td>
+                            <td><button onclick="abrirResolverDen('${d._id}')" class="btn-secondary" style="font-size:.78rem;padding:6px 12px">Gerenciar</button></td>
+                        </tr>`;
+                }).join('');
+            } catch (err) {
+                Toast.error('Erro ao carregar denúncias.');
+            }
+        }
+
+        function abrirResolverDen(id) {
+            document.getElementById('den-id-selecionada').value = id;
+            document.getElementById('modal-resolver-den').classList.add('active');
+        }
+
+        document.getElementById('btn-salvar-den').addEventListener('click', async () => {
+            const id = document.getElementById('den-id-selecionada').value;
+            const btn = document.getElementById('btn-salvar-den');
+            btn.textContent = 'Salvando...'; btn.disabled = true;
+            try {
+                await API.admin.resolverDenuncia(id, {
+                    status:    document.getElementById('den-novo-status').value,
+                    resolucao: document.getElementById('den-resolucao').value.trim(),
+                });
+                Toast.success('Denúncia atualizada.');
+                fecharModais();
+                carregarDenuncias();
+            } catch (err) {
+                Toast.error(err.message);
+            } finally {
+                btn.textContent = 'Salvar'; btn.disabled = false;
+            }
+        });
+
+        // ─── Anúncios ─────────────────────────────────────────────────────────
+        async function carregarAnuncios() {
+            const tbody = document.getElementById('tbody-anuncios');
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Carregando...</td></tr>`;
+            try {
+                const data    = await API.anuncios.listar({ limit: 50 });
+                const anuncios = data.anuncios;
+
+                if (!anuncios.length) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">Nenhum anúncio encontrado.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = anuncios.map(a => {
+                    const prof = a.profissionalId;
+                    return `
+                        <tr>
+                            <td style="font-weight:600">${a.titulo}</td>
+                            <td style="color:var(--gray-500)">${prof?.nome || '—'}</td>
+                            <td>${a.categoria}</td>
+                            <td><span class="table-badge ${a.status === 'ativo' ? 'tb-profissional' : 'tb-bloqueado'}">${a.status}</span></td>
+                            <td style="color:var(--gray-400)">${a.visualizacoes}</td>
+                            <td><button onclick="removerAnuncioAdmin('${a._id}')" class="btn-danger" style="font-size:.78rem">Remover</button></td>
+                        </tr>`;
+                }).join('');
+            } catch (err) {
+                Toast.error('Erro ao carregar anúncios.');
+            }
+        }
+
+        async function removerAnuncioAdmin(id) {
+            if (!confirm('Remover este anúncio?')) return;
+            try {
+                await API.admin.removerAnuncio(id);
+                Toast.success('Anúncio removido.');
+                carregarAnuncios();
+            } catch (err) { Toast.error(err.message); }
+        }
+
+        function fecharModais() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) fecharModais(); }));
+
+        carregarDashboard();
+
+        // ─── Categorias ───────────────────────────────────────────────────────
+        async function carregarCategorias() {
+            const tbody = document.getElementById('tbody-categorias');
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--gray-400)">Carregando...</td></tr>`;
+            try {
+                const data = await API.categorias.listar();
+                if (!data.categorias.length) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--gray-400)">Nenhuma categoria cadastrada.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = data.categorias.map(c => `
+                    <tr>
+                        <td style="font-size:1.4rem;text-align:center">${c.icone}</td>
+                        <td style="font-weight:700">${c.nome}</td>
+                        <td><span class="table-badge ${c.ativa ? 'tb-profissional' : 'tb-bloqueado'}">${c.ativa ? 'Ativa' : 'Inativa'}</span></td>
+                        <td style="display:flex;gap:8px">
+                            <button onclick="editarCategoria('${c._id}','${c.nome.replace(/'/g,"\'")}','${c.icone}',${c.ativa})" class="btn-secondary" style="font-size:.78rem;padding:6px 12px">Editar</button>
+                            <button onclick="deletarCategoria('${c._id}','${c.nome}')" class="btn-danger" style="font-size:.78rem">Remover</button>
+                        </td>
+                    </tr>`).join('');
+            } catch (err) { Toast.error('Erro ao carregar categorias.'); }
+        }
+
+        function abrirModalCategoria() {
+            document.getElementById('cat-edit-id').value = '';
+            document.getElementById('cat-nome').value    = '';
+            document.getElementById('cat-icone').value   = '🛠️';
+            document.getElementById('cat-ativa').value   = 'true';
+            document.getElementById('modal-cat-title').textContent = '➕ Nova Categoria';
+            document.getElementById('modal-categoria').classList.add('active');
+        }
+
+        function editarCategoria(id, nome, icone, ativa) {
+            document.getElementById('cat-edit-id').value = id;
+            document.getElementById('cat-nome').value    = nome;
+            document.getElementById('cat-icone').value   = icone;
+            document.getElementById('cat-ativa').value   = String(ativa);
+            document.getElementById('modal-cat-title').textContent = '✏️ Editar Categoria';
+            document.getElementById('modal-categoria').classList.add('active');
+        }
+
+        document.getElementById('btn-salvar-cat').addEventListener('click', async () => {
+            const btn  = document.getElementById('btn-salvar-cat');
+            const id   = document.getElementById('cat-edit-id').value;
+            const nome = document.getElementById('cat-nome').value.trim();
+            const icone= document.getElementById('cat-icone').value.trim() || '🛠️';
+            const ativa= document.getElementById('cat-ativa').value === 'true';
+
+            if (!nome) { Toast.warning('Nome é obrigatório.'); return; }
+            btn.textContent = 'Salvando...'; btn.disabled = true;
+
+            try {
+                if (id) {
+                    await API.categorias.atualizar(id, { nome, icone, ativa });
+                    Toast.success('Categoria atualizada!');
+                } else {
+                    await API.categorias.criar({ nome, icone });
+                    Toast.success('Categoria criada!');
+                }
+                fecharModais();
+                carregarCategorias();
+            } catch (err) {
+                Toast.error(err.message);
+            } finally {
+                btn.textContent = 'Salvar'; btn.disabled = false;
+            }
+        });
+
+        async function deletarCategoria(id, nome) {
+            if (!confirm(`Remover categoria "${nome}"? Isso não apaga os profissionais que a usam.`)) return;
+            try {
+                await API.categorias.deletar(id);
+                Toast.success('Categoria removida.');
+                carregarCategorias();
+            } catch (err) { Toast.error(err.message); }
+        }
+
+        // Atualiza abrirSecao para incluir categorias
+        const _abrirSecaoOrig = abrirSecao;
+    </script>
+</body>
+</html>

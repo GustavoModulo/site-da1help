@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da1Help. — Anúncio</title>
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { display: flex; flex-direction: column; }
+        .main-content { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; width: 100%; }
+
+        /* Banner principal do anúncio */
+        .anuncio-banner {
+            width: 100%; height: 420px; border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, var(--brand-violet), var(--brand-blue));
+            overflow: hidden; position: relative; margin-bottom: 32px;
+            box-shadow: var(--shadow-lg);
+        }
+        .anuncio-banner img { width: 100%; height: 100%; object-fit: cover; }
+        .anuncio-banner .no-img {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: rgba(255,255,255,.7);
+            gap: 12px;
+        }
+        .anuncio-banner .no-img span { font-size: 5rem; }
+        .anuncio-banner .no-img p { font-size: 1rem; font-weight: 600; }
+
+        /* Badge sobre o banner */
+        .banner-badges {
+            position: absolute; top: 20px; left: 20px;
+            display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        .banner-badge {
+            background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+            color: #fff; font-size: .75rem; font-weight: 700;
+            padding: 6px 14px; border-radius: 999px;
+        }
+        .banner-badge.destaque { background: rgba(245,158,11,.9); }
+
+        /* Layout em grid */
+        .layout-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+        @media (max-width: 768px) { .layout-grid { grid-template-columns: 1fr; } }
+
+        /* Card principal */
+        .main-card { background: rgba(255,255,255,.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.9); border-radius: var(--radius-xl); padding: 36px; box-shadow: var(--shadow-sm); }
+        body.dark-mode .main-card { background: rgba(26,26,46,.8); border-color: rgba(255,255,255,.07); }
+
+        .anuncio-titulo { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+        .anuncio-meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+        .meta-tag { display: flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 600; color: var(--gray-500); background: var(--gray-100); padding: 5px 12px; border-radius: 999px; }
+
+        .section-title { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); margin: 24px 0 12px; }
+        .anuncio-descricao { font-size: .95rem; line-height: 1.8; color: var(--gray-600); white-space: pre-wrap; }
+
+        .info-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .info-tag { background: var(--brand-blue-lt); color: var(--brand-blue); font-size: .78rem; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
+
+        /* Sidebar */
+        .sidebar-card { background: rgba(255,255,255,.8); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.9); border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-sm); position: sticky; top: 90px; }
+        body.dark-mode .sidebar-card { background: rgba(26,26,46,.8); border-color: rgba(255,255,255,.07); }
+
+        .prof-mini { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-100); }
+        body.dark-mode .prof-mini { border-color: rgba(255,255,255,.07); }
+        .prof-mini-avatar { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gray-200); }
+        .prof-mini-nome { font-weight: 700; font-size: .95rem; }
+        .prof-mini-cat { font-size: .78rem; color: var(--gray-400); }
+        .stars-sm { color: #f59e0b; font-size: .85rem; }
+
+        .preco-box { text-align: center; margin: 20px 0; }
+        .preco-label { font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); font-weight: 700; }
+        .preco-valor { font-size: 2.4rem; font-weight: 800; color: var(--gray-900); letter-spacing: -1px; }
+        .preco-tipo { font-size: .82rem; color: var(--gray-400); }
+
+        .sidebar-btns { display: flex; flex-direction: column; gap: 10px; }
+        .btn-wa { background: #25D366; color: #fff; border: none; padding: 14px; border-radius: 999px; font-weight: 700; font-size: .95rem; cursor: pointer; transition: var(--transition); font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-wa:hover { background: #1da851; transform: translateY(-2px); }
+        .btn-chat-side { background: var(--brand-blue); color: #fff; border: none; padding: 14px; border-radius: 999px; font-weight: 700; font-size: .95rem; cursor: pointer; transition: var(--transition); font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+        .btn-chat-side:hover { background: var(--brand-blue-mid); transform: translateY(-2px); }
+        .btn-ver-perfil { background: var(--gray-100); color: var(--gray-800); border: none; padding: 12px; border-radius: 999px; font-weight: 700; font-size: .9rem; cursor: pointer; transition: var(--transition); font-family: inherit; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-ver-perfil:hover { background: var(--gray-200); }
+
+        .views-count { text-align: center; margin-top: 16px; font-size: .75rem; color: var(--gray-400); }
+
+        /* Skeleton */
+    </style>
+</head>
+<body>
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header class="glass-header">
+        <div class="nav-container">
+            <div style="display:flex;align-items:center;gap:16px">
+                <a href="homepage.html" class="logo">Da1Help<span>.</span></a>
+                <a href="searchpage.html" class="btn-ghost" style="font-size:.85rem;padding:8px 14px">← Busca</a>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px">
+                <button onclick="toggleDarkMode()" id="dark-mode-btn">🌙</button>
+                <nav class="user-menu"></nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Banner -->
+        <div id="banner-wrap" class="anuncio-banner">
+            <div class="no-img"><span>📋</span><p>Carregando...</p></div>
+        </div>
+
+        <div class="layout-grid">
+            <!-- Conteúdo principal -->
+            <div class="main-card">
+                <div id="titulo-wrap">
+                    <div class="skel" style="height:40px;width:70%;margin-bottom:16px"></div>
+                    <div class="skel" style="height:20px;width:40%"></div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar-card" id="sidebar-wrap">
+                <div class="skel" style="height:52px;border-radius:50%;width:52px;margin-bottom:12px"></div>
+                <div class="skel" style="height:16px;width:80%;margin-bottom:8px"></div>
+                <div class="skel" style="height:48px;margin-top:20px"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="main.js"></script>
+    <script>
+        const anuncioId = new URLSearchParams(window.location.search).get('id');
+        if (!anuncioId) window.location.href = 'searchpage.html';
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        function starsHtml(nota) {
+            const n = Math.round(nota || 0);
+            return '★'.repeat(n) + '☆'.repeat(5 - n);
+        }
+
+        async function carregarAnuncio() {
+            try {
+                const data    = await API.anuncios.getById(anuncioId);
+                const anuncio = data.anuncio;
+                const prof    = anuncio.profissionalId || {};
+                const profDet = prof.profissional || {};
+
+                document.title = `Da1Help. — ${escapeHtml(anuncio.titulo)}`;
+
+                // Banner
+                const bannerWrap = document.getElementById('banner-wrap');
+                if (anuncio.imagemUrl) {
+                    bannerWrap.innerHTML = `
+                        <img src="${anuncio.imagemUrl}" alt="${anuncio.titulo}">
+                        <div class="banner-badges">
+                            <span class="banner-badge">${anuncio.categoria}</span>
+                            <span class="banner-badge">${anuncio.tipoServico}</span>
+                            ${anuncio.destacado ? '<span class="banner-badge destaque">⭐ Destaque</span>' : ''}
+                        </div>`;
+                } else {
+                    bannerWrap.innerHTML = `
+                        <div class="no-img">
+                            <span>📋</span>
+                            <p>${escapeHtml(anuncio.titulo)}</p>
+                        </div>
+                        <div class="banner-badges">
+                            <span class="banner-badge">${anuncio.categoria}</span>
+                            <span class="banner-badge">${anuncio.tipoServico}</span>
+                        </div>`;
+                }
+
+                // Conteúdo principal
+                const valorHtml = anuncio.valor?.valor
+                    ? `<div class="meta-tag"><i class="fa-solid fa-tag"></i> R$ ${parseFloat(anuncio.valor.valor).toFixed(2)}</div>`
+                    : '';
+                const prazoHtml = anuncio.prazo
+                    ? `<div class="meta-tag"><i class="fa-regular fa-clock"></i> ${anuncio.prazo}</div>`
+                    : '';
+                const regiaoHtml = anuncio.regiaoAtendida
+                    ? `<div class="meta-tag"><i class="fa-solid fa-location-dot"></i> ${anuncio.regiaoAtendida}</div>`
+                    : '';
+                const tagsHtml = anuncio.tags?.length
+                    ? `<p class="section-title">Tags</p><div class="info-tags">${anuncio.tags.map(t => `<span class="info-tag">#${t}</span>`).join('')}</div>`
+                    : '';
+
+                document.getElementById('titulo-wrap').innerHTML = `
+                    <h1 class="anuncio-titulo">${escapeHtml(anuncio.titulo)}</h1>
+                    <div class="anuncio-meta">
+                        ${valorHtml}${prazoHtml}${regiaoHtml}
+                        <div class="meta-tag"><i class="fa-solid fa-eye"></i> ${anuncio.visualizacoes} visualizações</div>
+                    </div>
+                    <p class="section-title">Descrição do Serviço</p>
+                    <p class="anuncio-descricao">${escapeHtml(anuncio.descricao)}</p>
+                    ${tagsHtml}
+                `;
+
+                // Sidebar
+                const avatarUrl = prof.fotoUrl && !prof.fotoUrl.includes('Default')
+                    ? prof.fotoUrl
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(prof.nome || 'P')}&background=1d4ed8&color=fff&bold=true`;
+
+                const precoBox = anuncio.valor?.valor
+                    ? `<div class="preco-box">
+                        <p class="preco-label">A partir de</p>
+                        <p class="preco-valor">R$ ${parseFloat(anuncio.valor.valor).toFixed(2)}</p>
+                        <p class="preco-tipo">${anuncio.valor.tipo === 'hora' ? 'por hora' : 'valor fixo'}</p>
+                       </div>`
+                    : `<div class="preco-box"><p class="preco-label">Valor</p><p class="preco-valor" style="font-size:1.2rem">Consultar</p></div>`;
+
+                const whatsLink = profDet.whatsapp
+                    ? `<a href="https://wa.me/${profDet.whatsapp}?text=Olá! Vi seu anúncio '${encodeURIComponent(anuncio.titulo)}' no Da1Help e gostaria de saber mais." target="_blank" class="btn-wa"><i class="fa-brands fa-whatsapp"></i> Chamar no WhatsApp</a>`
+                    : '';
+
+                document.getElementById('sidebar-wrap').innerHTML = `
+                    <div class="prof-mini">
+                        <img src="${avatarUrl}" alt="" class="prof-mini-avatar">
+                        <div>
+                            <p class="prof-mini-nome">${escapeHtml(prof.nome || 'Profissional')}</p>
+                            <p class="prof-mini-cat">${Array.isArray(profDet.categoria) ? profDet.categoria[0] : (profDet.categoria || '')}</p>
+                            <span class="stars-sm">${starsHtml(profDet.avaliacao)}</span>
+                            <span style="font-size:.78rem;color:var(--gray-400);margin-left:4px">${profDet.avaliacao ? profDet.avaliacao.toFixed(1) : 'Novo'}</span>
+                        </div>
+                    </div>
+                    ${precoBox}
+                    <div class="sidebar-btns">
+                        ${whatsLink}
+                        <a href="chat.html?id=${prof._id}" class="btn-chat-side"><i class="fa-solid fa-comment"></i> Enviar Mensagem</a>
+                        <a href="perfil-profissional.html?id=${prof._id}" class="btn-ver-perfil">👤 Ver Perfil Completo</a>
+                    </div>
+                    <p class="views-count"><i class="fa-solid fa-eye"></i> ${anuncio.visualizacoes} visualizações</p>
+                `;
+
+            } catch (err) {
+                Toast.error('Erro ao carregar anúncio.');
+                setTimeout(() => window.location.href = 'searchpage.html', 1500);
+            }
+        }
+
+        carregarAnuncio();
+    </script>
+</body>
+</html>
